@@ -83,18 +83,26 @@ respond(Req, Code, Data) ->
 %%--------------------------------------------------------------------
 
 handle_request(Req, State) ->
-    Path = Req:get(path), 
+    Path = Req:get(path),
     case Path of
         "/api/logout" ->
             respond(Req, 401, []);
-        _ -> 
+        _ ->
             if_authorized(Req, fun() -> handle_request(Path, Req, State) end)
     end.
-    
+
 handle_request("/api/current_user", Req, _State) ->
     "Basic " ++ BasicAuth =  Req:get_header_value("Authorization"),
     {Username, _Password} = user_passwd(BasicAuth),
     respond(Req, 200, [{username, bin(Username)}]);
+
+% API endpoint for adding isers
+handle_request("/api/add_user", Req, _State) ->
+    Username = Req:get_header_value("username"),
+    Password = Req:get_header_value("password"),
+    emq_dashboard_user:add(bin(Username), bin(Password), <<"">>),
+    respond(Req, 200, [{username, bin(Username)},{status, bin("Ok")}]);
+
 
 handle_request("/api/" ++ Name, Req, #state{dispatch = Dispatch}) ->
     Params = params(Req),
@@ -188,19 +196,19 @@ format(atom, S) -> list_to_atom(S);
 format(binary, S) -> list_to_binary(S);
 format(int, S)    -> list_to_integer(S).
 
-def_format({ets_size, TName}) -> 
+def_format({ets_size, TName}) ->
     TotalNum = ets:info(TName, size),
     case TotalNum of
     0 -> 1;
     _ -> TotalNum
     end;
-def_format({mnesia_size, TName}) -> 
+def_format({mnesia_size, TName}) ->
     TotalNum = mnesia:table_info(TName, size),
     case TotalNum of
     0 -> 1;
     _ -> TotalNum
     end;
-def_format(Def) -> Def. 
+def_format(Def) -> Def.
 
 bin(S) when is_list(S)   -> list_to_binary(S);
 bin(A) when is_atom(A)   -> bin(atom_to_list(A));
