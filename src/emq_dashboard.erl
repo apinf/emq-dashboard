@@ -96,12 +96,12 @@ handle_request("/api/current_user", Req, _State) ->
     {Username, _Password} = user_passwd(BasicAuth),
     respond(Req, 200, [{username, bin(Username)}]);
 
-% API endpoint for adding isers
+% API endpoint for adding users
 handle_request("/api/add_user", Req, _State) ->
-    Username = Req:get_header_value("username"),
-    Password = Req:get_header_value("password"),
-    emq_dashboard_user:add(bin(Username), bin(Password), <<"">>),
-    respond(Req, 200, [{username, bin(Username)},{status, bin("Ok")}]);
+    Username = bin(Req:get_header_value("username")),
+    Password = bin(Req:get_header_value("password")),
+    emq_dashboard_user:add(Username, Password, <<"">>),
+    respond(Req, 200, [{username, Username},{status, bin("Ok")}]);
 
 
 handle_request("/api/" ++ Name, Req, #state{dispatch = Dispatch}) ->
