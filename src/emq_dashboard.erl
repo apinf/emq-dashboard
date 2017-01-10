@@ -98,6 +98,9 @@ handle_request("/api/current_user", Req, _State) ->
 
 % API endpoint for adding users
 handle_request("/api/add_user", Req, _State) ->
+    % Request type check
+    % Method = Req:get(method),
+    % io:format(Method),
     Username = bin(Req:get_header_value("username")),
     Password = bin(Req:get_header_value("password")),
     emq_dashboard_user:add(Username, Password, <<"">>),
