@@ -97,7 +97,7 @@ handle_request("/api/current_user", Req, _State) ->
     respond(Req, 200, [{username, bin(Username)}]);
 
 % API endpoint for adding users
-handle_request("/api/add_user", Req, _State) ->
+handle_request("/api/users/add", Req, _State) ->
     % Request type check
     % Method = Req:get(method),
     % io:format(Method),
